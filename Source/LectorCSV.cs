@@ -22,8 +22,9 @@ namespace Proyecto_Final_POO_C_.Source
 
             foreach (string linea in File.ReadLines(ruta).Skip(1))
             {
+                ClienteDTO cliente;
+
                 string[] datos = linea.Split(','); 
-                ClienteDTO cliente = new ClienteDTO();
 
                 cliente.IdCliente   = datos[0];
                 cliente.Nombre      = datos[1];
