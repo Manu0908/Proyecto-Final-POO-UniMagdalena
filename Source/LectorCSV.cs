@@ -26,12 +26,20 @@ namespace Proyecto_Final_POO_C_.Source
 
                 string[] datos = linea.Split(','); 
 
-                cliente.IdCliente   = datos[0];
-                cliente.Nombre      = datos[1];
-                cliente.Email       = datos[2];
-                cliente.Ciudad      = datos[3];
-                cliente.TipoCliente = datos[4];
+                string IdCliente   = datos[0];
+                string Nombre      = datos[1];
+                string Email       = datos[2];
+                string Ciudad      = datos[3];
+                string TipoCliente = datos[4];
                 
+                if (TipoCliente == "empresarial")
+                {
+                    cliente = new ClienteDTO(IdCliente, Nombre, Email, Ciudad);
+                }
+                else if (TipoCliente == "natural")
+                {
+                    cliente = new ClienteDTO(IdCliente, Nombre, Email, Ciudad);
+                }
                 clientesDTO.Add(cliente);
             }
             return clientesDTO; 
