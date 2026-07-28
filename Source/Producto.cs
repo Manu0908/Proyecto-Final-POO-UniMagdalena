@@ -1,7 +1,7 @@
 // Proyecto Final POO Clase Normal: Producto
 using System;
 
-namespace Proyecto_Final_POO_C_ 
+namespace Proyecto_Final_POO_C_.Source 
 {
     public class Producto
     {

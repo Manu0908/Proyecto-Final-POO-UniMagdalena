@@ -2,7 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace Proyecto_Final_POO_C_{
+namespace Proyecto_Final_POO_C_
+{
     public abstract class Cliente
     {   
         private const string PatronEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";

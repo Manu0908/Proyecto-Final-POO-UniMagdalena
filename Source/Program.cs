@@ -1,4 +1,4 @@
-﻿namespace Proyecto_Final_POO_C_
+﻿namespace Proyecto_Final_POO_C_.Source
 {
     internal class Program
     {
