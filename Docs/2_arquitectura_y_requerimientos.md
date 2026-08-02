@@ -124,10 +124,10 @@ Se generan **dos archivos** en el formato elegido por el usuario (JSON o XML):
 ### Cliente (Clase Abstracta) ✅
 Atributos: `ID`, `Nombre`, `Email` (con validación por regex), `Ciudad`.
 Método abstracto: `EsFrecuente(int cantidadCompras, decimal totalInvertido)`.
-
-**Nota para tu compañero**: Para generar los reportes se necesitan dos propiedades públicas adicionales en `Cliente`:
-- `List<Pedido> Pedidos` — lista de pedidos asociados al cliente.
-- Método o propiedad para calcular el total acumulado y obtener el pedido más costoso.
+Propiedades y métodos agregados para el reporte:
+- `List<Pedido> Pedidos` — lista de pedidos válidos asociados al cliente.
+- `ObtenerTotalAcumulado()` — suma `CalcularValorTotalConImpuestos()` de todos sus pedidos.
+- `ObtenerPedidoMasCostoso()` — retorna el `Pedido?` con el mayor valor total con impuestos.
 
 ### ClienteNatural ✅
 Hereda de `Cliente`. `EsFrecuente` retorna `true` si `cantidadCompras > 5`.
@@ -154,6 +154,20 @@ Método: `CalcularSubtotalItem()` → `Cantidad × PrecioUnitario`.
 
 ### Producto ✅
 Atributos: `IDProducto`, `NombreProducto`, `Categoria`, `PrecioUnitario` (> 0), `NumeroVentas`.
+
+---
+
+## 4b. Capa de Servicios — PipelineProcessor ✅
+
+`PipelineProcessor` es la clase que orquesta todo el flujo de datos. Recibe las rutas y formatos elegidos por el usuario y ejecuta los siguientes pasos en orden:
+
+1. **Carga** — usa `LectorFactory` para obtener la estrategia de lectura y cargar los DTOs crudos.
+2. **Validación de clientes** — filtra filas con ID/Nombre/Email vacíos, emails con formato inválido o duplicados. Los inválidos se registran en consola como `[ADVERTENCIA]` y el proceso continúa.
+3. **Agrupación de pedidos** — agrupa las filas crudas por `IdPedido` (un pedido = N ítems) y construye instancias de `PedidoNacional` o `PedidoInternacional` con sus respectivos `PedidoItem`.
+4. **Relación pedido–cliente** — vincula cada pedido al cliente por email. Si el email no existe en el mapa de clientes, el pedido se guarda en `pedidosHuerfanos` sin interrumpir el proceso.
+5. **Mapeo a DTOs de reporte** — construye `ReporteProductoDTO` y `ReporteClienteDTO` a partir de las entidades de dominio ya procesadas.
+6. **Exportación** — usa `EscritorFactory` para obtener la estrategia de escritura y genera los archivos de reporte.
+7. **Resumen en consola** — imprime totales del negocio, conteo de pedidos por tipo y clientes por tipo.
 
 ---
 
@@ -224,9 +238,9 @@ classDiagram
 | `IImportarDatos` | — | ✅ Definida |
 | `IExportarDatos` | — | ✅ Definida |
 | `LectorCsv` | `IImportarDatos` | ✅ Implementado |
-| `LectorJson` | `IImportarDatos` | 🔄 Estructura lista, métodos pendientes |
-| `EscritorJson` | `IExportarDatos` | ⏳ Pendiente (paso 6) |
-| `EscritorXml` | `IExportarDatos` | ⏳ Pendiente (paso 7) |
+| `LectorJson` | `IImportarDatos` | ✅ Implementado |
+| `EscritorJson` | `IExportarDatos` | ✅ Implementado |
+| `EscritorXml` | `IExportarDatos` | ✅ Implementado |
 
 ### Patrón Factory — Selección de Estrategia
 
@@ -245,25 +259,25 @@ graph TD
 
 | Clase | Método | Estado |
 | :--- | :--- | :--- |
-| `LectorFactory` | `ObtenerLector(string formato) → IImportarDatos` | ⏳ Pendiente (paso 5) |
-| `EscritorFactory` | `ObtenerEscritor(string formato) → IExportarDatos` | ⏳ Pendiente (paso 8) |
+| `LectorFactory` | `ObtenerLector(string formato) → IImportarDatos` | ✅ Implementado |
+| `EscritorFactory` | `ObtenerEscritor(string formato) → IExportarDatos` | ✅ Implementado |
 
 ---
 
-## 7. Plan de Trabajo — Pasos Restantes
+## 7. Plan de Trabajo — Estado Final
 
-| # | Tarea | Mensaje de commit sugerido | Estado |
+| # | Tarea | Commit realizado | Estado |
 | :--- | :--- | :--- | :--- |
 | 1 | Interfaces `IImportarDatos` e `IExportarDatos` | `feat(interfaces): definir contratos IImportarDatos e IExportarDatos` | ✅ Hecho |
 | 2 | DTOs de entrada y reporte completos | `feat(dtos): completar DTOs de entrada y reporte` | ✅ Hecho |
 | 3 | `LectorCSV` implementado | `feat(lectores): implementar LectorCSV con manejo de filas inválidas` | ✅ Hecho |
-| 4 | `LectorJSON` implementado | `feat(lectores): implementar LectorJSON con System.Text.Json` | 🔄 En progreso |
-| 5 | `LectorFactory` | `feat(factory): agregar LectorFactory para selección de estrategia` | ⏳ Pendiente |
-| 6 | `EscritorJSON` | `feat(escritores): implementar exportación de reportes a JSON` | ⏳ Pendiente |
-| 7 | `EscritorXML` | `feat(escritores): implementar exportación de reportes a XML` | ⏳ Pendiente |
-| 8 | `EscritorFactory` | `feat(factory): agregar EscritorFactory para selección de estrategia` | ⏳ Pendiente |
-| 9 | Errores técnicos de I/O en `Program.cs` | `feat(programa): manejar excepciones de archivo no encontrado en consola` | ⏳ Pendiente |
-| 10 | Mapeo DTO → Entidad de dominio (`PipelineProcessor`) | `feat(pipeline): agregar mapeo entre DTOs y entidades de dominio` | ⏳ Pendiente |
+| 4 | `LectorJSON` implementado | `feat(lectores): implementar LectorJson y LectorFactory` | ✅ Hecho |
+| 5 | `LectorFactory` | `feat(lectores): implementar LectorJson y LectorFactory` | ✅ Hecho |
+| 6 | `EscritorJSON` | `feat(escritores): implementar EscritorJson, EscritorXml y EscritorFactory` | ✅ Hecho |
+| 7 | `EscritorXML` | `feat(escritores): implementar EscritorJson, EscritorXml y EscritorFactory` | ✅ Hecho |
+| 8 | `EscritorFactory` | `feat(escritores): implementar EscritorJson, EscritorXml y EscritorFactory` | ✅ Hecho |
+| 9 | Errores técnicos de I/O en `Program.cs` | `feat(programa): configurar CLI y captura de excepciones I/O` | ✅ Hecho |
+| 10 | Mapeo DTO → Entidad de dominio (`PipelineProcessor`) | `feat(pipeline): implementar mapeo y orquestacion PipelineProcessor` | ✅ Hecho |
 
 ---
 
