@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Productos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ReporteProductoDTO>
+    <IDProducto>PROD-A</IDProducto>
+    <NombreProducto>Laptop</NombreProducto>
+    <Categoria>Tecnologia</Categoria>
+    <PrecioUnitario>2500000.0</PrecioUnitario>
+    <NumeroVentas>1</NumeroVentas>
+  </ReporteProductoDTO>
+  <ReporteProductoDTO>
+    <IDProducto>PROD-B</IDProducto>
+    <NombreProducto>Mouse</NombreProducto>
+    <Categoria>Accesorios</Categoria>
+    <PrecioUnitario>50000.0</PrecioUnitario>
+    <NumeroVentas>3</NumeroVentas>
+  </ReporteProductoDTO>
+  <ReporteProductoDTO>
+    <IDProducto>PROD-C</IDProducto>
+    <NombreProducto>Servidor</NombreProducto>
+    <Categoria>Tecnologia</Categoria>
+    <PrecioUnitario>6000000.0</PrecioUnitario>
+    <NumeroVentas>10</NumeroVentas>
+  </ReporteProductoDTO>
+</Productos>
