@@ -1,17 +1,18 @@
-# Pipeline de Análisis de Clientes y Compras - Proyecto Final POO
+# Pipeline de Análisis de Clientes y Compras — Proyecto Final POO
 
-Este proyecto consiste en una aplicación de consola en C# (.NET) diseñada para procesar, limpiar, relacionar y analizar datos transaccionales de comercio electrónico a partir de archivos externos, generando reportes analíticos automatizados.
+Aplicación de consola en C# (.NET) que procesa, limpia, relaciona y analiza datos transaccionales de un e-commerce a partir de archivos externos (CSV o JSON), generando reportes analíticos exportables en JSON o XML.
 
-El desarrollo se fundamenta en los principios de la Programación Orientada a Objetos (POO) y la aplicación de patrones de diseño de software.
+El desarrollo se fundamenta en los principios de la Programación Orientada a Objetos (POO) y la aplicación de los patrones de diseño **Strategy** y **Factory**.
 
 ---
 
 ## Stack Tecnológico
 
-*   **Lenguaje**: C# (.NET 8.0 o superior)
-*   **Paradigma**: Programación Orientada a Objetos (Herencia, Polimorfismo, Encapsulamiento, Abstracción)
-*   **Pruebas Unitarias**: xUnit
-*   **Control de Versiones**: Git y GitHub
+- **Lenguaje**: C# (.NET 10.0)
+- **Paradigma**: POO — Herencia, Polimorfismo, Encapsulamiento, Abstracción
+- **Serialización**: `System.Text.Json` (JSON) y `System.Xml.Serialization` (XML)
+- **Pruebas**: xUnit
+- **Control de Versiones**: Git y GitHub
 
 ---
 
@@ -20,65 +21,125 @@ El desarrollo se fundamenta en los principios de la Programación Orientada a Ob
 ```text
 Proyecto Final POO/
 │
-├── Docs/                            # Documentación técnica del proyecto
-│   ├── 1_ciclo_y_git.md            # Ciclo de vida y tutorial de Git/GitHub
-│   ├── 2_convenciones_csharp.md    # Convenciones de nomenclatura y estilo C#
-│   ├── 3_arquitectura_y_patrones.md # Diseño de clases y patrones (Strategy/Factory)
-│   └── 4_requerimientos_y_fases.md # Requisitos del PDF y planes futuros (DTO/Serialización)
+├── Docs/
+│   ├── 1_convenciones_y_git.md          # Convenciones de código C# y guía de Git
+│   └── 2_arquitectura_y_requerimientos.md # Arquitectura, patrones, reglas de negocio y estado de implementación
 │
-├── Program.cs                       # Punto de entrada de la aplicación
-├── Proyecto Final POO C#.csproj    # Configuración del proyecto de .NET
-└── Proyecto Final POO C#.slnx      # Solución del proyecto
+├── MockData/
+│   ├── clientes.csv                     # Archivo de clientes de prueba (CSV)
+│   ├── pedidos.json                     # Archivo de pedidos de prueba (JSON)
+│   ├── reporte_clientes.xml             # Reporte de clientes generado (XML)
+│   └── reporte_productos.xml            # Reporte de productos generado (XML)
+│
+├── Proyecto_Final_POO_C_.Tests/
+│   ├── Proyecto_Final_POO_C_.Tests.csproj
+│   └── PruebasDominio.cs               # 5 pruebas unitarias xUnit (dominio y cálculos)
+│
+├── Source/
+│   ├── DTOs/
+│   │   ├── ClienteDTO.cs               # DTO entrada: fila cruda del archivo de clientes
+│   │   ├── PedidoItemDTO.cs            # DTO entrada: fila cruda del archivo de pedidos (un ítem)
+│   │   ├── PedidoDTO.cs                # DTO reporte: pedido agrupado con ítems y totales (PedidoReporteDTO)
+│   │   ├── ReporteClienteDTO.cs        # DTO reporte: cliente con totales y pedido más costoso
+│   │   └── ReporteProductoDTO.cs       # DTO reporte: producto con total de ventas
+│   │
+│   ├── Interfaces/
+│   │   ├── IImportarDatos.cs           # Contrato Strategy para leer archivos de entrada
+│   │   └── IExportarDatos.cs           # Contrato Strategy para escribir reportes de salida
+│   │
+│   ├── Lectores/
+│   │   ├── LectorCSV.cs                # Estrategia concreta: lectura de archivos CSV
+│   │   ├── LectorJSON.cs               # Estrategia concreta: lectura de archivos JSON
+│   │   └── LectorFactory.cs            # Factory: retorna LectorCsv o LectorJson según formato
+│   │
+│   ├── Escritores/
+│   │   ├── EscritorJson.cs             # Estrategia concreta: escritura de reportes en JSON
+│   │   ├── EscritorXml.cs              # Estrategia concreta: escritura de reportes en XML
+│   │   └── EscritorFactory.cs          # Factory: retorna EscritorJson o EscritorXml según formato
+│   │
+│   ├── Cliente.cs                       # Clase abstracta del dominio
+│   ├── ClienteNatural.cs                # Hereda de Cliente — frecuente si > 5 compras
+│   ├── ClienteEmpresarial.cs            # Hereda de Cliente — frecuente si > $50M acumulado
+│   ├── Pedido.cs                        # Clase abstracta del dominio
+│   ├── PedidoNacional.cs                # Hereda de Pedido — impuesto 19%
+│   ├── PedidoInternacional.cs           # Hereda de Pedido — impuesto 30%
+│   ├── PedidoItem.cs                    # Línea de un pedido con producto, cantidad y precio
+│   ├── Producto.cs                      # Entidad de catálogo con número de ventas
+│   ├── PipelineProcessor.cs             # Orquestador: carga → valida → relaciona → exporta
+│   └── Program.cs                       # Punto de entrada y menú interactivo de consola
+│
+├── Proyecto Final POO C#.csproj
+└── Proyecto Final POO C#.slnx
 ```
 
 ---
 
-## Características y Reglas de Negocio
+## Reglas de Negocio Principales
 
-El pipeline realiza de forma automática las siguientes fases:
-
-1.  **Lectura Multiformato**: Carga archivos independientes de clientes y compras en formato CSV o JSON.
-2.  **Limpieza de Datos**: Tolera inconsistencias, campos nulos y elimina registros duplicados.
-3.  **Relación de Entidades**: Une compras con clientes a través del correo electrónico. Los pedidos cuyos clientes no existen se catalogan y aíslan de forma segura como pedidos huérfanos.
-4.  **Cálculo de Impuestos**:
-    *   Pedidos Nacionales: Incremento del 19% de IVA.
-    *   Pedidos Internacionales: Incremento del 30% de impuesto de aduana.
-5.  **Clasificación de Clientes Frecuentes**:
-    *   Naturales: Más de 5 compras en el historial.
-    *   Empresariales: Compras acumuladas mayores a $50,000,000 COP.
-6.  **Reportes Finales**: Exporta el análisis a elección del usuario en formato JSON o XML.
+| Regla | Detalle |
+| :--- | :--- |
+| **Pedido Nacional** | Impuesto del **19%** sobre el subtotal |
+| **Pedido Internacional** | Impuesto del **30%** sobre el subtotal |
+| **Cliente Natural frecuente** | Más de **5 compras** realizadas |
+| **Cliente Empresarial frecuente** | Total acumulado > **$50.000.000 COP** |
+| **Pedido huérfano** | Email de cliente no encontrado → se guarda en lista separada, no detiene el proceso |
+| **Error de I/O** | Archivo no encontrado o sin permisos → **detiene** la ejecución |
+| **Error de datos** | Fila corrupta o inválida → se registra en consola, **no detiene** el proceso |
 
 ---
 
-## Patrones de Diseño Utilizados
+## Patrones de Diseño Aplicados
 
-### 1. Patrón Strategy (Estrategia)
-Se utiliza para desacoplar las operaciones de entrada/salida de la lógica del pipeline.
-*   **Lectura (IImportarDatos)**: Estrategias para procesar archivos CSV y JSON.
-*   **Escritura (IExporterReporte)**: Estrategias para generar reportes analíticos en JSON y XML.
+### Strategy
+Desacopla el pipeline del formato físico de los archivos:
+- **`IImportarDatos`** → `LectorCsv`, `LectorJson`
+- **`IExportarDatos`** → `EscritorJson`, `EscritorXml`
 
-### 2. Patrón Factory (Fábrica)
-Se utiliza para delegar la creación de las estrategias correctas en tiempo de ejecución de acuerdo a los formatos seleccionados por el usuario.
-*   `LectorFactory`
-*   `ExportadorFactory`
+### Factory
+Encapsula la instanciación de la estrategia correcta en tiempo de ejecución:
+- **`LectorFactory`** — devuelve `IImportarDatos` según `"CSV"` o `"JSON"`
+- **`EscritorFactory`** — devuelve `IExportarDatos` según `"JSON"` o `"XML"`
 
 ---
 
-## Ejecución y Pruebas
+## Ejecución
 
-### Ejecutar la Aplicación:
-Para iniciar el pipeline e interactuar por consola, ejecuta en la terminal del proyecto:
 ```bash
 dotnet run
 ```
 
-### Ejecutar las Pruebas Unitarias:
-Para correr el conjunto de pruebas unitarias xUnit (mínimo 5 pruebas que validan cálculos de negocio, datos corruptos e intercambio de estrategias):
+El programa solicita por consola:
+1. Ruta del archivo de clientes
+2. Formato del archivo de clientes (`CSV` o `JSON`)
+3. Ruta del archivo de compras (pedidos)
+4. Formato del archivo de compras (`CSV` o `JSON`)
+5. Formato de salida de los reportes (`JSON` o `XML`)
+6. Carpeta de destino para los archivos generados
+
+Al finalizar, genera:
+- `reporte_productos.<ext>` — listado de productos con total de ventas
+- `reporte_clientes.<ext>` — listado de clientes con totales y pedido más costoso
+
+Y muestra en consola un **resumen general**: ventas totales, pedidos nacionales vs. internacionales, clientes naturales vs. empresariales.
+
+---
+
+## Pruebas Unitarias
+
 ```bash
 dotnet test
 ```
 
+El proyecto `Proyecto_Final_POO_C_.Tests` contiene 5 pruebas unitarias con xUnit que cubren:
+- Validación de email inválido en el dominio
+- Cálculo de impuesto del 19% para pedido nacional
+- Cálculo de impuesto del 30% para pedido internacional
+- Comportamiento intercambiable: frecuencia en `ClienteNatural`
+- Comportamiento intercambiable: frecuencia en `ClienteEmpresarial`
+
 ---
 
 ## Integrantes y Declaración de IA
-Este proyecto es desarrollado de manera colaborativa. De acuerdo con nuestros estándares éticos académicos, declaramos el uso de Inteligencia Artificial para la estructuración de ideas y aclaración de conceptos de software, recayendo las decisiones esenciales y la autoría en los integrantes del grupo.
+
+Este proyecto es desarrollado de manera colaborativa. Declaramos el uso de herramientas de Inteligencia Artificial para la estructuración de conceptos y organización de documentación. Las decisiones de diseño, arquitectura y negocio son tomadas y revisadas por los integrantes del equipo.
+

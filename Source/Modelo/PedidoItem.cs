@@ -1,15 +1,18 @@
-// Proyecto Final POO Clase Normal: PedidoItem
-namespace Proyecto_Final_POO_C_{
+// Proyecto Final POO — Clase normal: PedidoItem
+namespace Proyecto_Final_POO_C_.Source.Modelo
+{
     public class PedidoItem
     {
         private int _cantidad;
         private decimal _preciounitario;
 
-        private PedidoItem() {}
+        // Constructor privado bloqueado: PedidoItem siempre requiere un producto asociado.
+        private PedidoItem() { }
 
         public PedidoItem(Producto productoAsociado, int cantidad, decimal preciounitario)
         {
-            ProductoAsociado = productoAsociado ?? throw new ArgumentNullException(nameof(productoAsociado), "El producto asociado no puede ser nulo.");
+            ProductoAsociado = productoAsociado
+                ?? throw new ArgumentNullException(nameof(productoAsociado), "El producto asociado no puede ser nulo.");
 
             Cantidad = cantidad;
             PrecioUnitario = preciounitario;
@@ -43,6 +46,7 @@ namespace Proyecto_Final_POO_C_{
             }
         }
 
+        // Subtotal de la línea: cantidad × precio unitario pactado.
         public decimal CalcularSubtotalItem()
         {
             return Cantidad * _preciounitario;

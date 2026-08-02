@@ -1,0 +1,57 @@
+[
+  {
+    "id_pedido": "PED-01",
+    "email_cliente": "juan@example.com",
+    "fecha": "2026-08-01",
+    "tipo_pedido": "nacional",
+    "id_producto": "PROD-A",
+    "nombre_producto": "Laptop",
+    "categoria_producto": "Tecnologia",
+    "cantidad": 1,
+    "precio_unitario": 2500000.0
+  },
+  {
+    "id_pedido": "PED-01",
+    "email_cliente": "juan@example.com",
+    "fecha": "2026-08-01",
+    "tipo_pedido": "nacional",
+    "id_producto": "PROD-B",
+    "nombre_producto": "Mouse",
+    "categoria_producto": "Accesorios",
+    "cantidad": 2,
+    "precio_unitario": 50000.0
+  },
+  {
+    "id_pedido": "PED-02",
+    "email_cliente": "info@ecorp.com",
+    "fecha": "2026-08-02",
+    "tipo_pedido": "internacional",
+    "id_producto": "PROD-C",
+    "nombre_producto": "Servidor",
+    "categoria_producto": "Tecnologia",
+    "cantidad": 10,
+    "precio_unitario": 6000000.0
+  },
+  {
+    "id_pedido": "PED-03",
+    "email_cliente": "huerfano@example.com",
+    "fecha": "2026-08-02",
+    "tipo_pedido": "nacional",
+    "id_producto": "PROD-B",
+    "nombre_producto": "Mouse",
+    "categoria_producto": "Accesorios",
+    "cantidad": 1,
+    "precio_unitario": 50000.0
+  },
+  {
+    "id_pedido": "PED-04",
+    "email_cliente": "juan@example.com",
+    "fecha": "invalid-date",
+    "tipo_pedido": "nacional",
+    "id_producto": "PROD-B",
+    "nombre_producto": "Mouse",
+    "categoria_producto": "Accesorios",
+    "cantidad": 1,
+    "precio_unitario": 50000.0
+  }
+]

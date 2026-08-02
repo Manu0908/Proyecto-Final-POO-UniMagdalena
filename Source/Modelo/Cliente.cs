@@ -2,7 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
-namespace Proyecto_Final_POO_C_{
+namespace Proyecto_Final_POO_C_.Source.Modelo
+{
     public abstract class Cliente
     {   
         private const string PatronEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
@@ -23,6 +24,7 @@ namespace Proyecto_Final_POO_C_{
 
         //Explicación de porque hago esto: En el enunciado del proyecto final se nos informo que solo se permiten correos validos, yo supuse, uno que pertenezca a un dominio aceptable, como el comun "email.com", pero ya que exiten mas dominios que si podrian ser aceptados si cumplen con el orden adecuado, investigando cree este patron que debe tener todo correo que pueda ser aceptado.
         private string _id;
+
         private string _nombre;
 
         private string _email;
@@ -85,6 +87,36 @@ namespace Proyecto_Final_POO_C_{
             get{return _ciudad;}
             set{_ciudad = value;}
         }   
+
+        public List<Pedido> Pedidos { get; } = new List<Pedido>();
+
+        public decimal ObtenerTotalAcumulado()
+        {
+            decimal total = 0m;
+            foreach (var pedido in Pedidos)
+            {
+                total += pedido.CalcularValorTotalConImpuestos();
+            }
+            return total;
+        }
+
+        public Pedido? ObtenerPedidoMasCostoso()
+        {
+            if (Pedidos.Count == 0)
+            {
+                return null;
+            }
+
+            Pedido masCostoso = Pedidos[0];
+            foreach (var pedido in Pedidos)
+            {
+                if (pedido.CalcularValorTotalConImpuestos() > masCostoso.CalcularValorTotalConImpuestos())
+                {
+                    masCostoso = pedido;
+                }
+            }
+            return masCostoso;
+        }
 
         public abstract bool EsFrecuente(int cantidadCompras, decimal totalInvertido);  
     }

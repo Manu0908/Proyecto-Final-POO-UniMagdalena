@@ -1,20 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+// Proyecto Final POO — DTO de reporte: PedidoReporteDTO
+// Representa un pedido ya procesado y validado, con sus ítems agrupados y totales calculados.
+// Se usa como campo de composición en ReporteClienteDTO (pedido más costoso del cliente).
+using System.Text.Json.Serialization;
 
 namespace Proyecto_Final_POO_C_.Source.DTOs
 {
-    // La razon de porque todos son string (con un ? para que sea nullable (permita ser nulo)) se desarrolla en cliente DTO
-    public class PedidoDTO
+    public class PedidoReporteDTO
     {
-        public string? IdPedido { get; set; }
-        public string? EmailCliente { get; set; }
-        public string? Fecha { get; set; }
-        public string? TipoPedido { get; set; }
-        public string? IdProducto { get; set; }
-        public string? NombreProducto { get; set; }
-        public string? CategoriaProducto { get; set; }
-        public string? Cantidad { get; set; }
-        public string? PrecioUnitario { get; set; }
+        [JsonPropertyName("id_pedido")]
+        public string IdPedido          { get; set; } = string.Empty;
+
+        [JsonPropertyName("fecha")]
+        public string Fecha             { get; set; } = string.Empty;
+
+        // "nacional" o "internacional".
+        [JsonPropertyName("tipo_pedido")]
+        public string TipoPedido        { get; set; } = string.Empty;
+
+        // Ítems individuales que componen este pedido (ya agrupados por IdPedido).
+        [JsonPropertyName("items")]
+        public List<PedidoItemDTO> Items { get; set; } = new List<PedidoItemDTO>();
+
+        // Totales calculados a partir de los ítems y el tipo de pedido.
+        [JsonPropertyName("subtotal")]
+        public decimal SubTotal         { get; set; }
+
+        [JsonPropertyName("impuesto_aplicado")]
+        public decimal ImpuestoAplicado { get; set; }
+
+        [JsonPropertyName("total_final")]
+        public decimal TotalFinal       { get; set; }
     }
 }

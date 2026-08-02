@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Proyecto Final POO C#.csproj" />
+  <Project Path="Proyecto_Final_POO_C_.Tests/Proyecto_Final_POO_C_.Tests.csproj" />
 </Solution>

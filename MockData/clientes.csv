@@ -1,0 +1,6 @@
+id_cliente,nombre,email,ciudad,tipo_cliente
+1,Juan Perez,juan@example.com,Santa Marta,natural
+2,Maria Gomez,maria@example.com,Bogota,natural
+3,E-Corp,info@ecorp.com,Medellin,empresarial
+4,Cliente Sucio,,Barranquilla,natural
+5,Cliente Invalido,invalido-email,Cali,natural
