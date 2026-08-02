@@ -1,6 +1,6 @@
 using System;
 using Xunit;
-using Proyecto_Final_POO_C_.Source;
+using Proyecto_Final_POO_C_.Source.Modelo;
 
 namespace Proyecto_Final_POO_C_.Tests
 {

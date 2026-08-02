@@ -10,6 +10,7 @@ using Proyecto_Final_POO_C_.Source.DTOs;
 using Proyecto_Final_POO_C_.Source.Escritores;
 using Proyecto_Final_POO_C_.Source.Interfaces;
 using Proyecto_Final_POO_C_.Source.Lectores;
+using Proyecto_Final_POO_C_.Source.Modelo;
 
 namespace Proyecto_Final_POO_C_.Source
 {
