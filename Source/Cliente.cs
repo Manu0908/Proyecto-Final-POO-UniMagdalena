@@ -1,6 +1,7 @@
 // Proyecto Final POO Clase Padre: Cliente
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using Proyecto_Final_POO_C_.Source;
 
 namespace Proyecto_Final_POO_C_
 {
@@ -87,6 +88,36 @@ namespace Proyecto_Final_POO_C_
             get{return _ciudad;}
             set{_ciudad = value;}
         }   
+
+        public List<Pedido> Pedidos { get; } = new List<Pedido>();
+
+        public decimal ObtenerTotalAcumulado()
+        {
+            decimal total = 0m;
+            foreach (var pedido in Pedidos)
+            {
+                total += pedido.CalcularValorTotalConImpuestos();
+            }
+            return total;
+        }
+
+        public Pedido? ObtenerPedidoMasCostoso()
+        {
+            if (Pedidos.Count == 0)
+            {
+                return null;
+            }
+
+            Pedido masCostoso = Pedidos[0];
+            foreach (var pedido in Pedidos)
+            {
+                if (pedido.CalcularValorTotalConImpuestos() > masCostoso.CalcularValorTotalConImpuestos())
+                {
+                    masCostoso = pedido;
+                }
+            }
+            return masCostoso;
+        }
 
         public abstract bool EsFrecuente(int cantidadCompras, decimal totalInvertido);  
     }
