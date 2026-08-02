@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -7,5 +7,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Cliente.cs" />
+    <Compile Remove="Proyecto_Final_POO_C_.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Source\Cliente.cs" />
+    <None Include="Proyecto_Final_POO_C_.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Source\Escritores\" />
+  </ItemGroup>
 
 </Project>
