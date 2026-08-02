@@ -1,5 +1,5 @@
 // Proyecto Final POO — Clase hija: ClienteNatural
-namespace Proyecto_Final_POO_C_
+namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class ClienteNatural : Cliente
     {

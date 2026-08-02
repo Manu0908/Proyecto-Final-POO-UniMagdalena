@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Proyecto_Final_POO_C_.Source 
+namespace Proyecto_Final_POO_C_.Source.Modelo 
 {
     public abstract class Pedido
     {   

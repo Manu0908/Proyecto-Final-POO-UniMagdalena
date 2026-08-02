@@ -1,5 +1,5 @@
 // Proyecto Final POO — Clase normal: PedidoItem
-namespace Proyecto_Final_POO_C_.Source
+namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class PedidoItem
     {

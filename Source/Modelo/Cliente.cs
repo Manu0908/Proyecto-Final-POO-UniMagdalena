@@ -1,9 +1,8 @@
 // Proyecto Final POO Clase Padre: Cliente
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Proyecto_Final_POO_C_.Source;
 
-namespace Proyecto_Final_POO_C_
+namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public abstract class Cliente
     {   
