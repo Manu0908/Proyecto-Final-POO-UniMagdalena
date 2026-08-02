@@ -11,6 +11,7 @@ El desarrollo se fundamenta en los principios de la Programación Orientada a Ob
 - **Lenguaje**: C# (.NET 10.0)
 - **Paradigma**: POO — Herencia, Polimorfismo, Encapsulamiento, Abstracción
 - **Serialización**: `System.Text.Json` (JSON) y `System.Xml.Serialization` (XML)
+- **Pruebas**: xUnit
 - **Control de Versiones**: Git y GitHub
 
 ---
@@ -23,6 +24,16 @@ Proyecto Final POO/
 ├── Docs/
 │   ├── 1_convenciones_y_git.md          # Convenciones de código C# y guía de Git
 │   └── 2_arquitectura_y_requerimientos.md # Arquitectura, patrones, reglas de negocio y estado de implementación
+│
+├── MockData/
+│   ├── clientes.csv                     # Archivo de clientes de prueba (CSV)
+│   ├── pedidos.json                     # Archivo de pedidos de prueba (JSON)
+│   ├── reporte_clientes.xml             # Reporte de clientes generado (XML)
+│   └── reporte_productos.xml            # Reporte de productos generado (XML)
+│
+├── Proyecto_Final_POO_C_.Tests/
+│   ├── Proyecto_Final_POO_C_.Tests.csproj
+│   └── PruebasDominio.cs               # 5 pruebas unitarias xUnit (dominio y cálculos)
 │
 ├── Source/
 │   ├── DTOs/
@@ -38,9 +49,13 @@ Proyecto Final POO/
 │   │
 │   ├── Lectores/
 │   │   ├── LectorCSV.cs                # Estrategia concreta: lectura de archivos CSV
-│   │   └── LectorJSON.cs               # Estrategia concreta: lectura de archivos JSON (pendiente)
+│   │   ├── LectorJSON.cs               # Estrategia concreta: lectura de archivos JSON
+│   │   └── LectorFactory.cs            # Factory: retorna LectorCsv o LectorJson según formato
 │   │
-│   ├── Escritores/                      # Pendiente: EscritorJSON y EscritorXML
+│   ├── Escritores/
+│   │   ├── EscritorJson.cs             # Estrategia concreta: escritura de reportes en JSON
+│   │   ├── EscritorXml.cs              # Estrategia concreta: escritura de reportes en XML
+│   │   └── EscritorFactory.cs          # Factory: retorna EscritorJson o EscritorXml según formato
 │   │
 │   ├── Cliente.cs                       # Clase abstracta del dominio
 │   ├── ClienteNatural.cs                # Hereda de Cliente — frecuente si > 5 compras
@@ -50,7 +65,8 @@ Proyecto Final POO/
 │   ├── PedidoInternacional.cs           # Hereda de Pedido — impuesto 30%
 │   ├── PedidoItem.cs                    # Línea de un pedido con producto, cantidad y precio
 │   ├── Producto.cs                      # Entidad de catálogo con número de ventas
-│   └── Program.cs                       # Punto de entrada (en construcción)
+│   ├── PipelineProcessor.cs             # Orquestador: carga → valida → relaciona → exporta
+│   └── Program.cs                       # Punto de entrada y menú interactivo de consola
 │
 ├── Proyecto Final POO C#.csproj
 └── Proyecto Final POO C#.slnx
@@ -77,12 +93,12 @@ Proyecto Final POO/
 ### Strategy
 Desacopla el pipeline del formato físico de los archivos:
 - **`IImportarDatos`** → `LectorCsv`, `LectorJson`
-- **`IExportarDatos`** → `EscritorJson`, `EscritorXml` *(pendientes)*
+- **`IExportarDatos`** → `EscritorJson`, `EscritorXml`
 
 ### Factory
 Encapsula la instanciación de la estrategia correcta en tiempo de ejecución:
-- **`LectorFactory`** *(pendiente)* — devuelve `IImportarDatos` según `"CSV"` o `"JSON"`
-- **`EscritorFactory`** *(pendiente)* — devuelve `IExportarDatos` según `"JSON"` o `"XML"`
+- **`LectorFactory`** — devuelve `IImportarDatos` según `"CSV"` o `"JSON"`
+- **`EscritorFactory`** — devuelve `IExportarDatos` según `"JSON"` o `"XML"`
 
 ---
 
@@ -92,10 +108,38 @@ Encapsula la instanciación de la estrategia correcta en tiempo de ejecución:
 dotnet run
 ```
 
-El programa solicitará por consola la ruta del archivo de clientes, la ruta del archivo de pedidos, el formato de cada uno (CSV/JSON) y el formato del reporte de salida (JSON/XML).
+El programa solicita por consola:
+1. Ruta del archivo de clientes
+2. Formato del archivo de clientes (`CSV` o `JSON`)
+3. Ruta del archivo de compras (pedidos)
+4. Formato del archivo de compras (`CSV` o `JSON`)
+5. Formato de salida de los reportes (`JSON` o `XML`)
+6. Carpeta de destino para los archivos generados
+
+Al finalizar, genera:
+- `reporte_productos.<ext>` — listado de productos con total de ventas
+- `reporte_clientes.<ext>` — listado de clientes con totales y pedido más costoso
+
+Y muestra en consola un **resumen general**: ventas totales, pedidos nacionales vs. internacionales, clientes naturales vs. empresariales.
+
+---
+
+## Pruebas Unitarias
+
+```bash
+dotnet test
+```
+
+El proyecto `Proyecto_Final_POO_C_.Tests` contiene 5 pruebas unitarias con xUnit que cubren:
+- Validación de email inválido en el dominio
+- Cálculo de impuesto del 19% para pedido nacional
+- Cálculo de impuesto del 30% para pedido internacional
+- Comportamiento intercambiable: frecuencia en `ClienteNatural`
+- Comportamiento intercambiable: frecuencia en `ClienteEmpresarial`
 
 ---
 
 ## Integrantes y Declaración de IA
 
 Este proyecto es desarrollado de manera colaborativa. Declaramos el uso de herramientas de Inteligencia Artificial para la estructuración de conceptos y organización de documentación. Las decisiones de diseño, arquitectura y negocio son tomadas y revisadas por los integrantes del equipo.
+
