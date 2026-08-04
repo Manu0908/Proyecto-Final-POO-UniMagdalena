@@ -1,6 +1,4 @@
-// Proyecto Final POO — Fábrica: EscritorFactory
-// Devuelve la estrategia de exportación correspondiente (JSON o XML)
-// desacoplando el pipeline de la instanciación concreta.
+using System;
 using Proyecto_Final_POO_C_.Source.Interfaces;
 
 namespace Proyecto_Final_POO_C_.Source.Escritores
