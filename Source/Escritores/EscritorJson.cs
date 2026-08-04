@@ -1,5 +1,4 @@
-// Proyecto Final POO — Estrategia concreta: EscritorJson
-// Implementa IExportarDatos para escribir reportes en formato JSON.
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using Proyecto_Final_POO_C_.Source.DTOs;

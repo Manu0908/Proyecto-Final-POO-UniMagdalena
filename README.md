@@ -57,20 +57,34 @@ Proyecto Final POO/
 │   │   ├── EscritorXml.cs              # Estrategia concreta: escritura de reportes en XML
 │   │   └── EscritorFactory.cs          # Factory: retorna EscritorJson o EscritorXml según formato
 │   │
-│   ├── Cliente.cs                       # Clase abstracta del dominio
-│   ├── ClienteNatural.cs                # Hereda de Cliente — frecuente si > 5 compras
-│   ├── ClienteEmpresarial.cs            # Hereda de Cliente — frecuente si > $50M acumulado
-│   ├── Pedido.cs                        # Clase abstracta del dominio
-│   ├── PedidoNacional.cs                # Hereda de Pedido — impuesto 19%
-│   ├── PedidoInternacional.cs           # Hereda de Pedido — impuesto 30%
-│   ├── PedidoItem.cs                    # Línea de un pedido con producto, cantidad y precio
-│   ├── Producto.cs                      # Entidad de catálogo con número de ventas
-│   ├── PipelineProcessor.cs             # Orquestador: carga → valida → relaciona → exporta
-│   └── Program.cs                       # Punto de entrada y menú interactivo de consola
+│   ├── Modelo/
+│   │   ├── Cliente.cs                  # Clase abstracta del dominio
+│   │   ├── ClienteNatural.cs           # Hereda de Cliente — frecuente si > 5 compras
+│   │   ├── ClienteEmpresarial.cs       # Hereda de Cliente — frecuente si > $50M acumulado
+│   │   ├── Pedido.cs                   # Clase abstracta del dominio
+│   │   ├── PedidoNacional.cs           # Hereda de Pedido — impuesto 19%
+│   │   ├── PedidoInternacional.cs      # Hereda de Pedido — impuesto 30%
+│   │   ├── PedidoItem.cs               # Línea de un pedido con producto, cantidad y precio
+│   │   ├── Producto.cs                 # Entidad de catálogo con número de ventas
+│   │   └── Excepciones.cs              # Excepciones de dominio y pipeline personalizadas
+│   │
+│   ├── PipelineProcessor.cs            # Orquestador: carga → valida → relaciona → exporta
+│   └── Program.cs                      # Punto de entrada y menú interactivo de consola
 │
 ├── Proyecto Final POO C#.csproj
 └── Proyecto Final POO C#.slnx
 ```
+
+---
+
+## Manejo de Errores y Excepciones Personalizadas
+
+El sistema utiliza excepciones personalizadas para el control y validación de datos en la capa de dominio y el mapeo del pipeline:
+
+- **`ClienteInvalidoException`**: Se lanza al detectar datos obligatorios vacíos o formatos de email incorrectos en un cliente.
+- **`ProductoInvalidoException`**: Se lanza ante productos con precios o datos base inválidos.
+- **`PedidoInvalidoException`**: Se lanza al validar la consistencia de los pedidos, precios o cantidades menores o iguales a cero.
+- **`ProcesamientoPipelineException`**: Se utiliza durante el mapeo de DTOs a entidades de dominio y el flujo del pipeline para reportar y omitir registros corruptos sin detener la aplicación.
 
 ---
 
@@ -84,7 +98,8 @@ Proyecto Final POO/
 | **Cliente Empresarial frecuente** | Total acumulado > **$50.000.000 COP** |
 | **Pedido huérfano** | Email de cliente no encontrado → se guarda en lista separada, no detiene el proceso |
 | **Error de I/O** | Archivo no encontrado o sin permisos → **detiene** la ejecución |
-| **Error de datos** | Fila corrupta o inválida → se registra en consola, **no detiene** el proceso |
+| **Error de datos / Dominio** | Datos inconsistentes detectados por excepciones personalizadas → se capturan en el pipeline y se omiten los registros, **no detiene** el proceso |
+
 
 ---
 

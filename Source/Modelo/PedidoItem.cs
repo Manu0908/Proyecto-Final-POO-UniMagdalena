@@ -1,4 +1,5 @@
-// Proyecto Final POO — Clase normal: PedidoItem
+using System;
+
 namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class PedidoItem
@@ -6,13 +7,12 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
         private int _cantidad;
         private decimal _preciounitario;
 
-        // Constructor privado bloqueado: PedidoItem siempre requiere un producto asociado.
         private PedidoItem() { }
 
         public PedidoItem(Producto productoAsociado, int cantidad, decimal preciounitario)
         {
             ProductoAsociado = productoAsociado
-                ?? throw new ArgumentNullException(nameof(productoAsociado), "El producto asociado no puede ser nulo.");
+                ?? throw new PedidoInvalidoException("El producto asociado no puede ser nulo.", nameof(productoAsociado));
 
             Cantidad = cantidad;
             PrecioUnitario = preciounitario;
@@ -27,7 +27,7 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), "La cantidad comprada debe ser mayor a cero.");
+                    throw new PedidoInvalidoException("La cantidad comprada debe ser mayor a cero.", nameof(value));
                 }
                 _cantidad = value;
             }
@@ -40,13 +40,12 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), "El precio unitario del item debe ser mayor a cero.");
+                    throw new PedidoInvalidoException("El precio unitario del item debe ser mayor a cero.", nameof(value));
                 }
                 _preciounitario = value;
             }
         }
 
-        // Subtotal de la línea: cantidad × precio unitario pactado.
         public decimal CalcularSubtotalItem()
         {
             return Cantidad * _preciounitario;

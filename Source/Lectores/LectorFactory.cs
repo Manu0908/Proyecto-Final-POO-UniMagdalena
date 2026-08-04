@@ -1,6 +1,4 @@
-// Proyecto Final POO — Fábrica: LectorFactory
-// Devuelve la estrategia de importación correspondiente (CSV o JSON)
-// desacoplando el pipeline de la instanciación concreta.
+using System;
 using Proyecto_Final_POO_C_.Source.Interfaces;
 
 namespace Proyecto_Final_POO_C_.Source.Lectores

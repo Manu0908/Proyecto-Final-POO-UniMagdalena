@@ -1,4 +1,3 @@
-// Proyecto Final POO — Clase hija: ClienteNatural
 namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class ClienteNatural : Cliente
@@ -8,7 +7,6 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
         {
         }
 
-        // Es frecuente si ha realizado más de 5 compras en el historial.
         public override bool EsFrecuente(int cantidadCompras, decimal totalInvertido)
         {
             return cantidadCompras > 5;

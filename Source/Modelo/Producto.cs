@@ -1,4 +1,3 @@
-// Proyecto Final POO Clase Normal: Producto
 using System;
 
 namespace Proyecto_Final_POO_C_.Source.Modelo
@@ -6,9 +5,9 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
     public class Producto
     {
         private decimal _preciounitario;
-        private string _idproducto;
-        private string _nombreproducto;
-        private string _categoria;
+        private string _idproducto = string.Empty;
+        private string _nombreproducto = string.Empty;
+        private string _categoria = string.Empty;
 
         private Producto() {}
 
@@ -28,7 +27,7 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(value), "El precio por unidad debe ser mayor a cero.");
+                    throw new ProductoInvalidoException("El precio por unidad debe ser mayor a cero.", nameof(value));
                 }
                 _preciounitario = value;
             }
@@ -41,7 +40,7 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("La id del producto no puede estar vacia.");
+                    throw new ProductoInvalidoException("La id del producto no puede estar vacia.");
                 }
                 _idproducto = value;
             }
@@ -54,7 +53,7 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("El nombre del producto no puede estar vacio.");
+                    throw new ProductoInvalidoException("El nombre del producto no puede estar vacio.");
                 }
                 _nombreproducto = value;
             }

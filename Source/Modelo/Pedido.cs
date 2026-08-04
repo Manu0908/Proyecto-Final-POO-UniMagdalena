@@ -1,4 +1,3 @@
-// Proyecto Final POO Clase Padre: Pedido
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -8,8 +7,8 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
     public abstract class Pedido
     {   
         private const string PatronEmail = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        private string _idpedido;
-        private string _emailcliente;
+        private string _idpedido = string.Empty;
+        private string _emailcliente = string.Empty;
 
         protected Pedido()
         {
@@ -31,7 +30,7 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("La ID del pedido no puede estar vacía.");
+                    throw new PedidoInvalidoException("La ID del pedido no puede estar vacía.");
                 }
                 _idpedido = value;
             }
@@ -46,12 +45,12 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
-                    throw new ArgumentException("El email del cliente no puede estar vacío.");
+                    throw new PedidoInvalidoException("El email del cliente no puede estar vacío.");
                 }
 
                 else if (!Regex.IsMatch(value, PatronEmail))
                 {
-                    throw new ArgumentException("El formato del email no es válido.");
+                    throw new PedidoInvalidoException("El formato del email no es válido.");
                 }
 
                 _emailcliente = value;

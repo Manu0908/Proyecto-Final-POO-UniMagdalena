@@ -1,4 +1,3 @@
-// Proyecto Final POO — Clase hija: ClienteEmpresarial
 namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class ClienteEmpresarial : Cliente
@@ -8,7 +7,6 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
         {
         }
 
-        // Es frecuente si el total acumulado de sus compras supera los $50.000.000 COP.
         public override bool EsFrecuente(int cantidadCompras, decimal totalInvertido)
         {
             return totalInvertido > 50000000m;

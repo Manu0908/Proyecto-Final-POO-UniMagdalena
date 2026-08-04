@@ -1,5 +1,4 @@
-// Proyecto Final POO — Estrategia concreta: EscritorXml
-// Implementa IExportarDatos para escribir reportes en formato XML.
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using Proyecto_Final_POO_C_.Source.DTOs;
