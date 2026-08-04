@@ -1,4 +1,5 @@
-// Proyecto Final POO — Clase hija: PedidoInternacional
+using System;
+
 namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class PedidoInternacional : Pedido
@@ -10,7 +11,6 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
         {
         }
 
-        // Impuesto del 30% para pedidos con destino u origen internacional.
         public override decimal CalcularImpuestoAplicado()
         {
             return CalcularValorSinImpuestos() * 0.30m;

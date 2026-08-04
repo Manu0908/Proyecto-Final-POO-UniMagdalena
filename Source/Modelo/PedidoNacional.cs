@@ -1,4 +1,5 @@
-// Proyecto Final POO — Clase hija: PedidoNacional
+using System;
+
 namespace Proyecto_Final_POO_C_.Source.Modelo
 {
     public class PedidoNacional : Pedido
@@ -10,7 +11,6 @@ namespace Proyecto_Final_POO_C_.Source.Modelo
         {
         }
 
-        // Impuesto del 19% para pedidos dentro del territorio nacional.
         public override decimal CalcularImpuestoAplicado()
         {
             return CalcularValorSinImpuestos() * 0.19m;
