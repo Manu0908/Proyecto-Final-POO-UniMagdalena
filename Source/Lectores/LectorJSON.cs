@@ -1,5 +1,4 @@
-// Proyecto Final POO — Estrategia concreta: LectorJSON
-// Implementa IImportarDatos para leer archivos en formato JSON.
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using Proyecto_Final_POO_C_.Source.DTOs;
@@ -11,8 +10,6 @@ namespace Proyecto_Final_POO_C_.Source.Lectores
     {
         public List<ClienteDTO> LeerClientes(string ruta)
         {
-            // Lanza IOException o FileNotFoundException si falla la lectura física del archivo.
-            // Esto es correcto según la regla de detener el programa para fallas técnicas de I/O.
             string json = File.ReadAllText(ruta);
 
             var opciones = new JsonSerializerOptions
@@ -26,7 +23,6 @@ namespace Proyecto_Final_POO_C_.Source.Lectores
 
         public List<PedidoItemDTO> LeerPedidos(string ruta)
         {
-            // Lanza IOException o FileNotFoundException si falla la lectura física del archivo.
             string json = File.ReadAllText(ruta);
 
             var opciones = new JsonSerializerOptions
