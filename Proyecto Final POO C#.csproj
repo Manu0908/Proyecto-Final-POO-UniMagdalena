@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Source\Cliente.cs" />
     <None Include="Proyecto_Final_POO_C_.Tests\**" />
   </ItemGroup>
 
