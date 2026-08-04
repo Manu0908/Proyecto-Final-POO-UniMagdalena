@@ -6,26 +6,24 @@ namespace Proyecto_Final_POO_C_.Tests
 {
     public class PruebasDominio
     {
-        // 1. Validación de dato de dominio inválido: Email inválido lanza excepción
         [Fact]
         public void ValidacionEmailInvalido_LanzaExcepcion()
         {
             // Act & Assert
-            var excepcion = Assert.Throws<ArgumentException>(() =>
+            var excepcion = Assert.Throws<ClienteInvalidoException>(() =>
                 new ClienteNatural("123", "Juan Perez", "email_invalido", "Santa Marta")
             );
 
             Assert.Contains("El formato del email", excepcion.Message);
         }
 
-        // 2. Cálculo de negocio: Impuesto del 19% para Pedido Nacional
         [Fact]
         public void CalcularImpuestoPedidoNacional_RetornaDiecinuevePorciento()
         {
             // Arrange
             var producto = new Producto(100000m, "P1", "Celular", "Tecnologia");
             var pedido = new PedidoNacional("PED-N-01", DateTime.Now, "juan@email.com");
-            var item = new PedidoItem(producto, 2, 100000m); // Total sin imp. = 200,000
+            var item = new PedidoItem(producto, 2, 100000m);
             pedido.Items.Add(item);
 
             // Act
@@ -35,18 +33,17 @@ namespace Proyecto_Final_POO_C_.Tests
 
             // Assert
             Assert.Equal(200000m, subtotal);
-            Assert.Equal(38000m, impuesto); // 19% of 200,000
+            Assert.Equal(38000m, impuesto);
             Assert.Equal(238000m, total);
         }
 
-        // 3. Cálculo de negocio: Impuesto del 30% para Pedido Internacional
         [Fact]
         public void CalcularImpuestoPedidoInternacional_RetornaTreintaPorciento()
         {
             // Arrange
             var producto = new Producto(100000m, "P1", "Celular", "Tecnologia");
             var pedido = new PedidoInternacional("PED-I-01", DateTime.Now, "juan@email.com");
-            var item = new PedidoItem(producto, 2, 100000m); // Total sin imp. = 200,000
+            var item = new PedidoItem(producto, 2, 100000m);
             pedido.Items.Add(item);
 
             // Act
@@ -56,11 +53,10 @@ namespace Proyecto_Final_POO_C_.Tests
 
             // Assert
             Assert.Equal(200000m, subtotal);
-            Assert.Equal(60000m, impuesto); // 30% of 200,000
+            Assert.Equal(60000m, impuesto);
             Assert.Equal(260000m, total);
         }
 
-        // 4. Comportamiento intercambiable: Cliente Natural es frecuente con más de 5 compras
         [Theory]
         [InlineData(5, false)]
         [InlineData(6, true)]
@@ -76,7 +72,6 @@ namespace Proyecto_Final_POO_C_.Tests
             Assert.Equal(esperadoFrecuente, esFrecuente);
         }
 
-        // 5. Comportamiento intercambiable: Cliente Empresarial es frecuente con inversión > $50,000,000 COP
         [Theory]
         [InlineData(50000000, false)]
         [InlineData(50000001, true)]

@@ -1,5 +1,3 @@
-// Proyecto Final POO — Capa de Servicios: PipelineProcessor
-// Orquesta todo el pipeline: Carga -> Limpia/Valida -> Relaciona -> Analiza -> Exporta
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -29,9 +27,6 @@ namespace Proyecto_Final_POO_C_.Source
         {
             Console.WriteLine("\n[Pipeline] Iniciando procesamiento...");
 
-            // ──────────────────────────────────────────────────────────────
-            // 1. CARGA DE DATOS (LECTURA)
-            // ──────────────────────────────────────────────────────────────
             IImportarDatos lectorClientes = LectorFactory.ObtenerLector(formatoClientes);
             IImportarDatos lectorPedidos = LectorFactory.ObtenerLector(formatoPedidos);
 
@@ -41,9 +36,6 @@ namespace Proyecto_Final_POO_C_.Source
             Console.WriteLine($"[Pipeline] Se leyeron {clientesRaw.Count} registros de clientes crudos.");
             Console.WriteLine($"[Pipeline] Se leyeron {pedidosRaw.Count} filas de pedidos crudas.");
 
-            // ──────────────────────────────────────────────────────────────
-            // 2. PROCESAMIENTO Y VALIDACIÓN DE CLIENTES
-            // ──────────────────────────────────────────────────────────────
             var clientesMap = new Dictionary<string, Cliente>(StringComparer.OrdinalIgnoreCase);
             int clientesIgnorados = 0;
 
@@ -52,52 +44,13 @@ namespace Proyecto_Final_POO_C_.Source
                 try
                 {
                     if (dto == null) continue;
-
-                    string id = dto.IdCliente?.Trim() ?? string.Empty;
-                    string nombre = dto.Nombre?.Trim() ?? string.Empty;
-                    string email = dto.Email?.Trim() ?? string.Empty;
-                    string ciudad = dto.Ciudad?.Trim() ?? string.Empty;
-                    string tipo = dto.TipoCliente?.Trim().ToLower() ?? string.Empty;
-
-                    // Validaciones rápidas para registrar advertencia clara antes de instanciar el dominio
-                    if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email))
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Cliente omitido (id, nombre y email son obligatorios): ID='{id}', Nombre='{nombre}', Email='{email}'");
-                        clientesIgnorados++;
-                        continue;
-                    }
-
-                    if (!Regex.IsMatch(email, PatronEmail))
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Cliente '{nombre}' omitido por formato de email inválido: '{email}'");
-                        clientesIgnorados++;
-                        continue;
-                    }
-
-                    if (clientesMap.ContainsKey(email))
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Cliente omitido por correo duplicado: '{email}'");
-                        clientesIgnorados++;
-                        continue;
-                    }
-
-                    Cliente cliente;
-                    if (tipo == "natural")
-                    {
-                        cliente = new ClienteNatural(id, nombre, email, ciudad);
-                    }
-                    else if (tipo == "empresarial")
-                    {
-                        cliente = new ClienteEmpresarial(id, nombre, email, ciudad);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Cliente '{nombre}' omitido por tipo no reconocido: '{tipo}'");
-                        clientesIgnorados++;
-                        continue;
-                    }
-
-                    clientesMap.Add(email, cliente);
+                    Cliente cliente = MapearCliente(dto, clientesMap);
+                    clientesMap.Add(cliente.Email, cliente);
+                }
+                catch (ProcesamientoPipelineException ex)
+                {
+                    Console.WriteLine($"[ADVERTENCIA] {ex.Message}");
+                    clientesIgnorados++;
                 }
                 catch (Exception ex)
                 {
@@ -106,15 +59,11 @@ namespace Proyecto_Final_POO_C_.Source
                 }
             }
 
-            // ──────────────────────────────────────────────────────────────
-            // 3. PROCESAMIENTO Y VALIDACIÓN DE PEDIDOS (AGRUPACIÓN POR ID)
-            // ──────────────────────────────────────────────────────────────
             var productosCatalog = new Dictionary<string, Producto>(StringComparer.OrdinalIgnoreCase);
             var todosLosPedidos = new List<Pedido>();
             var pedidosHuerfanos = new List<Pedido>();
             int pedidosIgnorados = 0;
 
-            // Agrupar filas crudas por ID del Pedido
             var pedidosAgrupados = pedidosRaw
                 .Where(p => p != null && !string.IsNullOrWhiteSpace(p.IdPedido))
                 .GroupBy(p => p.IdPedido!.Trim());
@@ -124,93 +73,19 @@ namespace Proyecto_Final_POO_C_.Source
                 try
                 {
                     string idPedido = grupo.Key;
-                    
-                    // Tomar metadatos generales del pedido a partir de la primera fila
                     var primeraFila = grupo.First();
-                    string emailCliente = primeraFila.EmailCliente?.Trim() ?? string.Empty;
-                    string fechaStr = primeraFila.Fecha?.Trim() ?? string.Empty;
-                    string tipoPedido = primeraFila.TipoPedido?.Trim().ToLower() ?? string.Empty;
+                    Pedido pedido = MapearPedidoCabecera(idPedido, primeraFila);
 
-                    // Validar metadatos de cabecera del pedido
-                    if (string.IsNullOrEmpty(emailCliente) || string.IsNullOrEmpty(fechaStr) || string.IsNullOrEmpty(tipoPedido))
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Pedido '{idPedido}' omitido por datos incompletos en la cabecera.");
-                        pedidosIgnorados++;
-                        continue;
-                    }
-
-                    if (!Regex.IsMatch(emailCliente, PatronEmail))
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Pedido '{idPedido}' omitido por formato de email inválido: '{emailCliente}'");
-                        pedidosIgnorados++;
-                        continue;
-                    }
-
-                    // Intentar parsear la fecha de compra
-                    DateTime fechaCompra;
-                    string[] formatosFecha = { "yyyy-MM-dd", "dd/MM/yyyy", "yyyy/MM/dd", "d/M/yyyy", "yyyy-MM-dd HH:mm:ss" };
-                    if (!DateTime.TryParseExact(fechaStr, formatosFecha, CultureInfo.InvariantCulture, DateTimeStyles.None, out fechaCompra))
-                    {
-                        if (!DateTime.TryParse(fechaStr, out fechaCompra))
-                        {
-                            Console.WriteLine($"[ADVERTENCIA] Pedido '{idPedido}' omitido por formato de fecha inválido: '{fechaStr}'");
-                            pedidosIgnorados++;
-                            continue;
-                        }
-                    }
-
-                    Pedido pedido;
-                    if (tipoPedido == "nacional")
-                    {
-                        pedido = new PedidoNacional(idPedido, fechaCompra, emailCliente);
-                    }
-                    else if (tipoPedido == "internacional")
-                    {
-                        pedido = new PedidoInternacional(idPedido, fechaCompra, emailCliente);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"[ADVERTENCIA] Pedido '{idPedido}' omitido por tipo no reconocido: '{tipoPedido}'");
-                        pedidosIgnorados++;
-                        continue;
-                    }
-
-                    // Validar y agregar ítems
                     foreach (var filaItem in grupo)
                     {
                         try
                         {
-                            string idProducto = filaItem.IdProducto?.Trim() ?? string.Empty;
-                            string nombreProducto = filaItem.NombreProducto?.Trim() ?? string.Empty;
-                            string categoria = filaItem.CategoriaProducto?.Trim() ?? string.Empty;
-                            int cantidad = filaItem.Cantidad ?? 0;
-                            decimal precioUnitario = filaItem.PrecioUnitario ?? 0m;
-
-                            if (string.IsNullOrEmpty(idProducto) || string.IsNullOrEmpty(nombreProducto))
-                            {
-                                Console.WriteLine($"[ADVERTENCIA] Ítem en pedido '{idPedido}' omitido por producto sin ID o nombre.");
-                                continue;
-                            }
-
-                            if (cantidad <= 0 || precioUnitario <= 0m)
-                            {
-                                Console.WriteLine($"[ADVERTENCIA] Ítem en pedido '{idPedido}' omitido por cantidad o precio no válidos (<= 0).");
-                                continue;
-                            }
-
-                            // Obtener o registrar producto en el catálogo global
-                            if (!productosCatalog.TryGetValue(idProducto, out Producto? producto))
-                            {
-                                producto = new Producto(precioUnitario, idProducto, nombreProducto, categoria);
-                                productosCatalog.Add(idProducto, producto);
-                            }
-
-                            // Incrementar el número acumulado de ventas del producto
-                            producto.NumeroVentas += cantidad;
-
-                            // Crear y agregar ítem de pedido
-                            var item = new PedidoItem(producto, cantidad, precioUnitario);
+                            PedidoItem item = MapearPedidoItem(idPedido, filaItem, productosCatalog);
                             pedido.Items.Add(item);
+                        }
+                        catch (ProcesamientoPipelineException ex)
+                        {
+                            Console.WriteLine($"[ADVERTENCIA] {ex.Message}");
                         }
                         catch (Exception ex)
                         {
@@ -218,7 +93,6 @@ namespace Proyecto_Final_POO_C_.Source
                         }
                     }
 
-                    // Si el pedido no quedó con ítems válidos, se ignora por completo
                     if (pedido.Items.Count == 0)
                     {
                         Console.WriteLine($"[ADVERTENCIA] Pedido '{idPedido}' ignorado porque no contiene ítems válidos.");
@@ -228,16 +102,19 @@ namespace Proyecto_Final_POO_C_.Source
 
                     todosLosPedidos.Add(pedido);
 
-                    // Relacionar pedido con el cliente
-                    if (clientesMap.TryGetValue(emailCliente, out Cliente? clienteAsociado))
+                    if (clientesMap.TryGetValue(pedido.EmailCliente, out Cliente? clienteAsociado))
                     {
                         clienteAsociado.Pedidos.Add(pedido);
                     }
                     else
                     {
-                        // Pedido huérfano (compra con email no existente en clientes)
                         pedidosHuerfanos.Add(pedido);
                     }
+                }
+                catch (ProcesamientoPipelineException ex)
+                {
+                    Console.WriteLine($"[ADVERTENCIA] {ex.Message}");
+                    pedidosIgnorados++;
                 }
                 catch (Exception ex)
                 {
@@ -250,10 +127,6 @@ namespace Proyecto_Final_POO_C_.Source
             Console.WriteLine($"[Pipeline] Pedidos válidos procesados: {todosLosPedidos.Count} (Ignorados: {pedidosIgnorados})");
             Console.WriteLine($"[Pipeline] Pedidos huérfanos detectados: {pedidosHuerfanos.Count}");
 
-            // ──────────────────────────────────────────────────────────────
-            // 4. MAPEO A DTOs DE REPORTE
-            // ──────────────────────────────────────────────────────────────
-            // A. Reporte de Productos
             List<ReporteProductoDTO> productosReporte = productosCatalog.Values
                 .Select(p => new ReporteProductoDTO
                 {
@@ -266,7 +139,6 @@ namespace Proyecto_Final_POO_C_.Source
                 .OrderBy(p => p.IDProducto)
                 .ToList();
 
-            // B. Reporte de Clientes
             List<ReporteClienteDTO> clientesReporte = clientesMap.Values
                 .Select(c =>
                 {
@@ -314,12 +186,8 @@ namespace Proyecto_Final_POO_C_.Source
                 .OrderBy(c => c.IdCliente)
                 .ToList();
 
-            // ──────────────────────────────────────────────────────────────
-            // 5. EXPORTACIÓN DE REPORTES (ESCRITURA)
-            // ──────────────────────────────────────────────────────────────
             IExportarDatos escritor = EscritorFactory.ObtenerEscritor(formatoSalida);
             
-            // Garantizar la existencia del directorio destino
             string? dirSalidaP = Path.GetDirectoryName(rutaReporteProductos);
             if (!string.IsNullOrEmpty(dirSalidaP) && !Directory.Exists(dirSalidaP))
             {
@@ -336,9 +204,6 @@ namespace Proyecto_Final_POO_C_.Source
 
             Console.WriteLine($"[Pipeline] Reportes exportados exitosamente en formato {formatoSalida.ToUpper()}.");
 
-            // ──────────────────────────────────────────────────────────────
-            // 6. RESUMEN EN CONSOLA
-            // ──────────────────────────────────────────────────────────────
             decimal ventasTotales = todosLosPedidos.Sum(p => p.CalcularValorTotalConImpuestos());
             int totalPedidosNacionales = todosLosPedidos.Count(p => p is PedidoNacional);
             int totalPedidosInternacionales = todosLosPedidos.Count(p => p is PedidoInternacional);
@@ -355,6 +220,112 @@ namespace Proyecto_Final_POO_C_.Source
             Console.WriteLine($"Clientes Empresariales registrados:    {totalClientesEmpresariales}");
             Console.WriteLine($"Pedidos huérfanos registrados:         {pedidosHuerfanos.Count}");
             Console.WriteLine("==================================================\n");
+        }
+
+        private Cliente MapearCliente(ClienteDTO dto, Dictionary<string, Cliente> clientesMap)
+        {
+            string id = dto.IdCliente?.Trim() ?? string.Empty;
+            string nombre = dto.Nombre?.Trim() ?? string.Empty;
+            string email = dto.Email?.Trim() ?? string.Empty;
+            string ciudad = dto.Ciudad?.Trim() ?? string.Empty;
+            string tipo = dto.TipoCliente?.Trim().ToLower() ?? string.Empty;
+
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(nombre) || string.IsNullOrEmpty(email))
+            {
+                throw new ProcesamientoPipelineException($"Cliente omitido (id, nombre y email son obligatorios): ID='{id}', Nombre='{nombre}', Email='{email}'");
+            }
+
+            if (!Regex.IsMatch(email, PatronEmail))
+            {
+                throw new ProcesamientoPipelineException($"Cliente '{nombre}' omitido por formato de email inválido: '{email}'");
+            }
+
+            if (clientesMap.ContainsKey(email))
+            {
+                throw new ProcesamientoPipelineException($"Cliente omitido por correo duplicado: '{email}'");
+            }
+
+            if (tipo == "natural")
+            {
+                return new ClienteNatural(id, nombre, email, ciudad);
+            }
+            else if (tipo == "empresarial")
+            {
+                return new ClienteEmpresarial(id, nombre, email, ciudad);
+            }
+            else
+            {
+                throw new ProcesamientoPipelineException($"Cliente '{nombre}' omitido por tipo no reconocido: '{tipo}'");
+            }
+        }
+
+        private Pedido MapearPedidoCabecera(string idPedido, PedidoItemDTO primeraFila)
+        {
+            string emailCliente = primeraFila.EmailCliente?.Trim() ?? string.Empty;
+            string fechaStr = primeraFila.Fecha?.Trim() ?? string.Empty;
+            string tipoPedido = primeraFila.TipoPedido?.Trim().ToLower() ?? string.Empty;
+
+            if (string.IsNullOrEmpty(emailCliente) || string.IsNullOrEmpty(fechaStr) || string.IsNullOrEmpty(tipoPedido))
+            {
+                throw new ProcesamientoPipelineException($"Pedido '{idPedido}' omitido por datos incompletos en la cabecera.");
+            }
+
+            if (!Regex.IsMatch(emailCliente, PatronEmail))
+            {
+                throw new ProcesamientoPipelineException($"Pedido '{idPedido}' omitido por formato de email inválido: '{emailCliente}'");
+            }
+
+            DateTime fechaCompra;
+            string[] formatosFecha = { "yyyy-MM-dd", "dd/MM/yyyy", "yyyy/MM/dd", "d/M/yyyy", "yyyy-MM-dd HH:mm:ss" };
+            if (!DateTime.TryParseExact(fechaStr, formatosFecha, CultureInfo.InvariantCulture, DateTimeStyles.None, out fechaCompra))
+            {
+                if (!DateTime.TryParse(fechaStr, out fechaCompra))
+                {
+                    throw new ProcesamientoPipelineException($"Pedido '{idPedido}' omitido por formato de fecha inválido: '{fechaStr}'");
+                }
+            }
+
+            if (tipoPedido == "nacional")
+            {
+                return new PedidoNacional(idPedido, fechaCompra, emailCliente);
+            }
+            else if (tipoPedido == "internacional")
+            {
+                return new PedidoInternacional(idPedido, fechaCompra, emailCliente);
+            }
+            else
+            {
+                throw new ProcesamientoPipelineException($"Pedido '{idPedido}' omitido por tipo no reconocido: '{tipoPedido}'");
+            }
+        }
+
+        private PedidoItem MapearPedidoItem(string idPedido, PedidoItemDTO filaItem, Dictionary<string, Producto> productosCatalog)
+        {
+            string idProducto = filaItem.IdProducto?.Trim() ?? string.Empty;
+            string nombreProducto = filaItem.NombreProducto?.Trim() ?? string.Empty;
+            string categoria = filaItem.CategoriaProducto?.Trim() ?? string.Empty;
+            int cantidad = filaItem.Cantidad ?? 0;
+            decimal precioUnitario = filaItem.PrecioUnitario ?? 0m;
+
+            if (string.IsNullOrEmpty(idProducto) || string.IsNullOrEmpty(nombreProducto))
+            {
+                throw new ProcesamientoPipelineException($"Ítem en pedido '{idPedido}' omitido por producto sin ID o nombre.");
+            }
+
+            if (cantidad <= 0 || precioUnitario <= 0m)
+            {
+                throw new ProcesamientoPipelineException($"Ítem en pedido '{idPedido}' omitido por cantidad o precio no válidos (<= 0).");
+            }
+
+            if (!productosCatalog.TryGetValue(idProducto, out Producto? producto))
+            {
+                producto = new Producto(precioUnitario, idProducto, nombreProducto, categoria);
+                productosCatalog.Add(idProducto, producto);
+            }
+
+            producto.NumeroVentas += cantidad;
+
+            return new PedidoItem(producto, cantidad, precioUnitario);
         }
     }
 }
