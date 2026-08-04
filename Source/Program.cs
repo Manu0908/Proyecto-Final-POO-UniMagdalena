@@ -13,7 +13,6 @@ namespace Proyecto_Final_POO_C_.Source
 
             try
             {
-                // 1. Ruta del archivo de clientes
                 Console.Write("\nIngrese la ruta del archivo de clientes: ");
                 string rutaClientes = Console.ReadLine()?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(rutaClientes))
@@ -21,7 +20,6 @@ namespace Proyecto_Final_POO_C_.Source
                     throw new ArgumentException("La ruta del archivo de clientes no puede estar vacía.");
                 }
 
-                // 2. Formato del archivo de clientes
                 Console.Write("Ingrese el formato del archivo de clientes (CSV o JSON): ");
                 string formatoClientes = Console.ReadLine()?.Trim().ToUpper() ?? string.Empty;
                 if (formatoClientes != "CSV" && formatoClientes != "JSON")
@@ -29,7 +27,6 @@ namespace Proyecto_Final_POO_C_.Source
                     throw new ArgumentException("El formato del archivo de clientes debe ser CSV o JSON.");
                 }
 
-                // 3. Ruta del archivo de compras
                 Console.Write("\nIngrese la ruta del archivo de compras (pedidos): ");
                 string rutaPedidos = Console.ReadLine()?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(rutaPedidos))
@@ -37,7 +34,6 @@ namespace Proyecto_Final_POO_C_.Source
                     throw new ArgumentException("La ruta del archivo de compras no puede estar vacía.");
                 }
 
-                // 4. Formato del archivo de compras
                 Console.Write("Ingrese el formato del archivo de compras (CSV o JSON): ");
                 string formatoPedidos = Console.ReadLine()?.Trim().ToUpper() ?? string.Empty;
                 if (formatoPedidos != "CSV" && formatoPedidos != "JSON")
@@ -45,7 +41,6 @@ namespace Proyecto_Final_POO_C_.Source
                     throw new ArgumentException("El formato del archivo de compras debe ser CSV o JSON.");
                 }
 
-                // 5. Formato del reporte de salida
                 Console.Write("\nIngrese el formato de salida para los reportes (JSON o XML): ");
                 string formatoSalida = Console.ReadLine()?.Trim().ToUpper() ?? string.Empty;
                 if (formatoSalida != "JSON" && formatoSalida != "XML")
@@ -53,7 +48,6 @@ namespace Proyecto_Final_POO_C_.Source
                     throw new ArgumentException("El formato de los reportes debe ser JSON o XML.");
                 }
 
-                // 6. Carpeta de destino de los reportes
                 Console.Write("\nIngrese la carpeta de destino para guardar los reportes (deje vacío para usar la carpeta actual): ");
                 string carpetaSalida = Console.ReadLine()?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(carpetaSalida))
@@ -65,7 +59,6 @@ namespace Proyecto_Final_POO_C_.Source
                 string rutaReporteProductos = Path.Combine(carpetaSalida, $"reporte_productos.{ext}");
                 string rutaReporteClientes = Path.Combine(carpetaSalida, $"reporte_clientes.{ext}");
 
-                // Instanciar y ejecutar el Pipeline
                 var procesador = new PipelineProcessor();
                 procesador.Ejecutar(
                     rutaClientes, 
