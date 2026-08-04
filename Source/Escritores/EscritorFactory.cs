@@ -12,12 +12,19 @@ namespace Proyecto_Final_POO_C_.Source.Escritores
                 throw new ArgumentException("El formato del escritor no puede estar vacío.");
             }
 
-            return formato.Trim().ToUpper() switch
+            string fmt = formato.Trim().ToUpper();
+            if (fmt == "JSON")
             {
-                "JSON" => new EscritorJson(),
-                "XML" => new EscritorXml(),
-                _ => throw new ArgumentException($"Formato de reporte no soportado: {formato}")
-            };
+                return new EscritorJson();
+            }
+            else if (fmt == "XML")
+            {
+                return new EscritorXml();
+            }
+            else
+            {
+                throw new ArgumentException($"Formato de reporte no soportado: {formato}");
+            }
         }
     }
 }

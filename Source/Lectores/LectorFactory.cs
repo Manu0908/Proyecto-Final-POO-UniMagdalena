@@ -12,12 +12,19 @@ namespace Proyecto_Final_POO_C_.Source.Lectores
                 throw new ArgumentException("El formato del lector no puede estar vacío.");
             }
 
-            return formato.Trim().ToUpper() switch
+            string fmt = formato.Trim().ToUpper();
+            if (fmt == "CSV")
             {
-                "CSV" => new LectorCsv(),
-                "JSON" => new LectorJson(),
-                _ => throw new ArgumentException($"Formato de entrada no soportado: {formato}")
-            };
+                return new LectorCsv();
+            }
+            else if (fmt == "JSON")
+            {
+                return new LectorJson();
+            }
+            else
+            {
+                throw new ArgumentException($"Formato de entrada no soportado: {formato}");
+            }
         }
     }
 }
